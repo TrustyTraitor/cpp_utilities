@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ARRAY_UTILS_MG
+#define ARRAY_UTILS_MG
 
 #include <iostream>
 #include <random>
@@ -119,3 +120,5 @@ namespace ArrayUtils {
         std::cout << std::endl;
     }
 }
+
+#endif

@@ -24,6 +24,6 @@ int main() {
 
 	TimerUtils::timer(print<std::string>, "output");
 	TimerUtils::timer(test);
-	// std::cout << add(1,2,3);
+	std::cout << add(1,2,3);
 
 }
