@@ -1,2 +1,2 @@
 # cpp_utilities
-A bunch of utilities I made for C++
+A bunch of utilities created for C++
