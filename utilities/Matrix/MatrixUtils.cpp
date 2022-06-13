@@ -1,6 +1,8 @@
 #include "MatrixUtils.hpp"
 #include <iostream>
 
+using MatrixUtils::IsNumeric;
+
 /* * * * * * * * * * 
 *   Constuctors   *
 *       and       *
@@ -11,11 +13,21 @@
  * 
  * @param size This cannot be changed after initialization
  */
-MatrixUtils::Matrix::Matrix(const std::size_t S) : size(S){
-	data = new int*[size];
+template<IsNumeric T>
+MatrixUtils::Matrix<T>::Matrix(const std::size_t S) : rowSize(S), colSize(S){
+	data = new T*[rowSize];
 
-	for(std::size_t i = 0; i < size; i++) {
-		data[i] = new int[size];
+	for(std::size_t i = 0; i < rowSize; i++) {
+		data[i] = new T[colSize];
+	}
+}
+
+template<IsNumeric T>
+MatrixUtils::Matrix<T>::Matrix(const std::size_t Sr, const std::size_t Sc) : rowSize(Sr), colSize(Sc){
+	data = new T*[rowSize];
+
+	for(std::size_t i = 0; i < rowSize; i++) {
+		data[i] = new T[colSize];
 	}
 }
 
@@ -24,15 +36,16 @@ MatrixUtils::Matrix::Matrix(const std::size_t S) : size(S){
  * 
  * @param other 
  */
-MatrixUtils::Matrix::Matrix(const MatrixUtils::Matrix &other) : size(other.size) {
-	data = new int*[size];
+template<IsNumeric TT>
+MatrixUtils::Matrix<TT>::Matrix(const Matrix<TT> &other) : rowSize(other.rowSize), colSize(other.colSize) {
+	data = new TT*[rowSize];
 
-	for(std::size_t i = 0; i < size; i++) {
-		data[i] = new int[size];
+	for(std::size_t i = 0; i < rowSize; i++) {
+		data[i] = new TT[colSize];
 	}
 
-	for(std::size_t i = 0; i < size; i++) {
-		for(std::size_t j = 0; j < size; j++) {
+	for(std::size_t i = 0; i < rowSize; i++) {
+		for(std::size_t j = 0; j < colSize; j++) {
 			data[i][j] = other.data[i][j];
 		}
 	}
@@ -41,8 +54,9 @@ MatrixUtils::Matrix::Matrix(const MatrixUtils::Matrix &other) : size(other.size)
 /**
  * @brief Destroy the Matrix object
  */
-MatrixUtils::Matrix::~Matrix() {
-	for(std::size_t i = 0; i < size; i++) {
+template<IsNumeric T>
+MatrixUtils::Matrix<T>::~Matrix() {
+	for(std::size_t i = 0; i < rowSize; i++) {
 		delete[] data[i];
 	}
 	delete[] data;
@@ -60,7 +74,8 @@ MatrixUtils::Matrix::~Matrix() {
  * @param col 0 indexed
  * @return int 
  */
-constexpr int MatrixUtils::Matrix::get(std::size_t row, std::size_t col) const {
+template<IsNumeric T>
+constexpr T MatrixUtils::Matrix<T>::get(std::size_t row, std::size_t col) const {
 	return data[row][col];
 }
 
@@ -71,7 +86,8 @@ constexpr int MatrixUtils::Matrix::get(std::size_t row, std::size_t col) const {
  * @param col 0 indexed
  * @param value
  */
-constexpr void MatrixUtils::Matrix::set(std::size_t row, std::size_t col, int value) {
+template<IsNumeric T>
+constexpr void MatrixUtils::Matrix<T>::set(std::size_t row, std::size_t col, T value) {
 	data[row][col] = value;
 }
 
@@ -80,9 +96,10 @@ constexpr void MatrixUtils::Matrix::set(std::size_t row, std::size_t col, int va
  * 
  * @param value defaults to 0
  */
-constexpr void MatrixUtils::Matrix::fill(int value) {
-	for(int i = 0; i < size; i++) {
-		for(int j = 0; j < size; j++) {
+template<IsNumeric T>
+constexpr void MatrixUtils::Matrix<T>::fill(T value) {
+	for(int i = 0; i < rowSize; i++) {
+		for(int j = 0; j < colSize; j++) {
 			data[i][j] = value;
 		}
 	}
@@ -98,17 +115,18 @@ constexpr void MatrixUtils::Matrix::fill(int value) {
  * 
  * @param title optional param that is printed before the matrix
  */
-void MatrixUtils::Matrix::print(std::string title) const {
+template<IsNumeric T>
+void MatrixUtils::Matrix<T>::print(std::string title) const {
 	std::cout << title << "\n";
 
 	std::cout << "\t";
-	for(std::size_t i = 0; i < size; i++) {
+	for(std::size_t i = 0; i < colSize; i++) {
 		std::cout << "v" << i+1 << "\t";
 	}
 	std::cout << "\n";
-	for(std::size_t i = 0; i < size; i++) {
+	for(std::size_t i = 0; i < rowSize; i++) {
 		std::cout << "v" << i+1 << "\t";
-		for(int j = 0; j < size; j++) {
+		for(int j = 0; j < colSize; j++) {
 			if(data[i][j] == INFINITE)
 				std::cout << "INF" << "\t";
 			else
@@ -124,10 +142,11 @@ void MatrixUtils::Matrix::print(std::string title) const {
  * @param vertex 0 indexed
  * @return int
  */
-constexpr int MatrixUtils::Matrix::findInDegree(std::size_t col) const {
+template<IsNumeric T>
+constexpr int MatrixUtils::Matrix<T>::findInDegree(std::size_t col) const {
 	col--; // this is so users can input col 1 instead of 0 when intending for 1
 	int in = 0;
-	for(std::size_t row = 0; row < size; row++) {
+	for(std::size_t row = 0; row < rowSize; row++) {
 		if( row != col ) {
 			if (data[row][col] != INFINITE)
 				in++;
@@ -142,10 +161,11 @@ constexpr int MatrixUtils::Matrix::findInDegree(std::size_t col) const {
  * @param vertex 0 indexed
  * @return int 
  */
-constexpr int MatrixUtils::Matrix::findOutDegree(std::size_t row) const {
+template<IsNumeric T>
+constexpr int MatrixUtils::Matrix<T>::findOutDegree(std::size_t row) const {
 	row--; // this is so users can input row 1 instead of 0 when intending for 1
 	int out = 0;
-	for(std::size_t col = 0; col < size; col++) {
+	for(std::size_t col = 0; col < rowSize; col++) {
 		if( row != col ) {
 			if (data[row][col] != INFINITE)
 				out++;
@@ -165,8 +185,95 @@ constexpr int MatrixUtils::Matrix::findOutDegree(std::size_t row) const {
  * @param col 
  * @return int* 
  */
-constexpr int* MatrixUtils::Matrix::operator[](std::size_t idx) {
+template<IsNumeric T>
+ int* MatrixUtils::Matrix<T>::operator[](std::size_t idx) {
 	return data[idx];
+}
+
+/**
+ * @brief 
+ * 
+ * @tparam T 
+ * @param mult 
+ */
+template<IsNumeric T>
+void MatrixUtils::Matrix<T>::operator*=(const MatrixUtils::IsNumeric auto& mult) {
+	for(std::size_t i = 0; i < rowSize; i++) {
+		for(std::size_t j = 0; j < colSize; j++) {
+			data[i][j] *= mult;
+		}
+	}
+}
+
+/**
+ * @brief 
+ * 
+ * @param multiplier 
+ * @return Matrix 
+ */
+template<IsNumeric T>
+MatrixUtils::Matrix<T> operator*(const MatrixUtils::Matrix<T> mat, const MatrixUtils::IsNumeric auto& mult) {
+
+	MatrixUtils::Matrix newMat(mat);
+
+	for(std::size_t i = 0; i < mat.rowSize; i++) {
+		for(std::size_t j = 0; j < mat.colSize; j++) {
+			newMat[i][j] *= mult;
+		}
+	}
+
+	return newMat;
+}
+
+/**
+ * @brief 
+ * 
+ * @param other 
+ * @return Matrix 
+ */
+template<IsNumeric T>
+MatrixUtils::Matrix<T> operator*(const MatrixUtils::Matrix<T>& left, const MatrixUtils::Matrix<T>& right) {
+	MatrixUtils::Matrix<T> Matrix<T> newMat(left.rowSize, left.colSize);
+
+	return newMat;
+}
+
+/**
+ * @brief 
+ * 
+ * @param other 
+ * @return Matrix 
+ */
+template<IsNumeric T>
+MatrixUtils::Matrix<T> operator+(const MatrixUtils::Matrix<T>& left, const MatrixUtils::Matrix<T>& right) {
+	MatrixUtils::Matrix<T> Matrix<T> newMat(left.rowSize, left.colSize);
+
+	for (std::size_t i = 0; i < left.rowSize; i++) {
+		for (std::size_t j = 0; j < left.colSize; j++) {
+			newMat[i][j] = left[i][j] + right[i][j];
+		}
+	}
+
+	return newMat;
+}
+
+/**
+ * @brief 
+ * 
+ * @param other 
+ * @return Matrix 
+ */
+template<IsNumeric T>
+MatrixUtils::Matrix<T> operator-(const MatrixUtils::Matrix<T>& left, const MatrixUtils::Matrix<T>& right) {
+	MatrixUtils::Matrix<T> Matrix<T> newMat(left.rowSize, left.colSize);
+
+	for (std::size_t i = 0; i < left.rowSize; i++) {
+		for (std::size_t j = 0; j < left.colSize; j++) {
+			newMat[i][j] = left[i][j] - right[i][j];
+		}
+	}
+
+	return newMat;
 }
 
 /* * * * * * * * * * 
@@ -176,14 +283,17 @@ constexpr int* MatrixUtils::Matrix::operator[](std::size_t idx) {
 * * * * * * * * * */
 /**
  * @brief Finds the optimal path beween all points using floyds algorithm. 
- * Outputs a path Matrix to the passed in Matrix obj.
+ * Outputs a path Matrix.
  * 
  * @param P_Matrix 
  */
-constexpr void MatrixUtils::Matrix::floyds(MatrixUtils::Matrix &P) { 
-	for(std::size_t k = 0; k < size; k++) {
-		for(std::size_t i = 0; i < size; i++) {
-			for(std::size_t j = 0; j < size; j++) {
+template<IsNumeric T>
+MatrixUtils::Matrix<T> MatrixUtils::Matrix<T>::floyds() {
+	MatrixUtils::Matrix<T> P(rowSize, colSize);
+
+	for(std::size_t k = 0; k < rowSize; k++) {
+		for(std::size_t i = 0; i < rowSize; i++) {
+			for(std::size_t j = 0; j < rowSize; j++) {
 				if(data[i][k] + data[k][j] < data[i][j]) {
 					P.data[i][j] = k+1;
 					data[i][j] = data[i][k] + data[k][j];
@@ -191,6 +301,8 @@ constexpr void MatrixUtils::Matrix::floyds(MatrixUtils::Matrix &P) {
 			}
 		}
 	}
+
+	return P;
 }
 
 /**
@@ -201,9 +313,8 @@ constexpr void MatrixUtils::Matrix::floyds(MatrixUtils::Matrix &P) {
  * @param start_vertex 0 indexed
  * @param end_vertex  0 indexed
  */
-void MatrixUtils::Matrix::path(std::size_t start_vertex, std::size_t end_vertex) const {
-
-
+template<IsNumeric T>
+void MatrixUtils::Matrix<T>::path(std::size_t start_vertex, std::size_t end_vertex) const {
 	if (data[start_vertex][end_vertex] != 0) {
 		path(start_vertex, data[start_vertex][end_vertex]-1);
 		std::cout << 'v' << data[start_vertex][end_vertex] << ' ';
