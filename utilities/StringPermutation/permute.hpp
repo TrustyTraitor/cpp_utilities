@@ -6,7 +6,7 @@ namespace Permute {
 std::string gen_brute_str(const size_t length, size_t i = 0);
 
 std::string gen_brute_str(const size_t length, size_t i) {
-	const static std::string alphanum{"0123456789abcdefghijklmnopqrstuvwxyz"};
+	const static std::string alphanum{"0123456789abcdefghijklmnopqrstuvwxyz_!"};
 	static std::string genString(length, alphanum[0]);
 	const static size_t alphanumLength = alphanum.length();
 
